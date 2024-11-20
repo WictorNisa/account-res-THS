@@ -18,38 +18,39 @@ const handleLabelClick = (label) => {
 };
 
 const inputHasValue = () => {
-  input.forEach((inputElement) => {
-    inputElement.addEventListener("input", () => {
-      const allFilled = Array.from(input).every((input) => input.value !== "");
-      button.disabled = !allFilled;
-    });
-  });
+  const allFilled = Array.from(input).every((input) => input.value !== "");
+  const passwordsValid =
+    passwordInput.value.length >= 8 &&
+    passwordInput.value === passwordConfirmInput.value;
+  button.disabled = !(allFilled && passwordsValid);
 };
 
-const passwordIsValid = (password, confirmpassword) => {
+const passwordIsValid = () => {
+  const password = passwordInput.value.trim();
+  const confirmPassword = passwordConfirmInput.value.trim();
+
   if (password.length < 8) {
-    console.log("Password needs to be at least 8 characters long");
     passwordInput.classList.add("invalid");
     passwordInput.classList.remove("valid");
   } else {
-    console.log("Password is long enough");
-    passwordInput.classList.remove("invalid");
     passwordInput.classList.add("valid");
+    passwordInput.classList.remove("invalid");
   }
 
-  if (confirmpassword !== password) {
-    console.log("Passwords must match!");
-    passwordConfirmInput.classList.add("invalid");
-    passwordConfirmInput.classList.remove("valid");
-    passwordMustMatch.style.display = "block"; // Show mismatch warning
+  if (password && confirmPassword) {
+    if (password !== confirmPassword) {
+      passwordConfirmInput.classList.add("invalid");
+      passwordConfirmInput.classList.remove("valid");
+      passwordMustMatch.style.display = "block";
+    } else {
+      passwordConfirmInput.classList.remove("invalid");
+      passwordConfirmInput.classList.add("valid");
+      passwordMustMatch.style.display = "none";
+    }
   } else {
-    console.log("Passwords match, nice!");
-    passwordConfirmInput.classList.remove("invalid");
-    passwordConfirmInput.classList.add("valid");
-    passwordMustMatch.style.display = "none"; // Hide mismatch warning
+    passwordMustMatch.style.display = "none";
   }
 };
-inputHasValue();
 
 // ****************** Event listener ******************
 
@@ -63,12 +64,16 @@ form.addEventListener("click", (e) => {
   }
 });
 
-passwordInput.addEventListener("input", () => {
-  passwordIsValid(passwordInput.value, passwordConfirmInput.value);
-});
-
-passwordConfirmInput.addEventListener("input", () => {
-  passwordIsValid(passwordInput.value, passwordConfirmInput.value);
+input.forEach((inputElement) => {
+  inputElement.addEventListener("input", () => {
+    inputHasValue();
+    if (
+      inputElement === passwordInput ||
+      inputElement === passwordConfirmInput
+    ) {
+      passwordIsValid();
+    }
+  });
 });
 
 form.addEventListener("submit", (e) => {
@@ -81,16 +86,12 @@ form.addEventListener("submit", (e) => {
     name: nameInput.value.trim(),
     username: usernameInput.value.trim(),
     email: emailInput.value.trim(),
-    password: passwordInput.value
+    password: passwordInput.value,
   };
 
   console.log(registrationData);
   alert(JSON.stringify(registrationData, null, 2));
   form.reset();
-  passwordConfirmInput.classList.remove("valid");
   passwordInput.classList.remove("valid");
+  passwordConfirmInput.classList.remove("valid");
 });
-
-
-
-//fixa så knappen är disabled hela vägen, och fixa med styles när saker är fel och rätt
